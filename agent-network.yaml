@@ -1,0 +1,90 @@
+schemaVersion: 1.0.0
+label: "Travel Agent Broker"
+brokers:
+  travel-agent-broker:
+    card:
+      protocolVersion: 0.3.0
+      name: Travel Agent Broker
+      description: Coordinates flight and hotel bookings conditionally based on the user's travel request.
+      url: ${ingressgw.url}/travel-agent-broker
+      capabilities:
+        pushNotifications: false
+      version: 1.0.0
+      defaultInputModes:
+        - text/plain
+      defaultOutputModes:
+        - text/plain
+      skills:
+        - id: travel-booking
+          name: Travel Booking
+          description: Books flights, hotels, or both based on what the user requests.
+          examples:
+            - Book me a flight to New York on July 10th
+            - I need a hotel in Paris for 3 nights
+            - Book me a full trip to Tokyo with flight and hotel
+          inputModes:
+            - text/plain
+          outputModes:
+            - text/plain
+          tags:
+            - travel
+            - booking
+    spec:
+      llm:
+        ref:
+          name: claude
+        configuration:
+          model: claude-opus-4-5
+      instructions:
+        - "You are a Travel Agent Broker. Help users book flights, hotels, or both based on their natural-language travel requests."
+        - "If the user only mentions a flight or air travel with no hotel, use only the flight booking agent."
+        - "If the user only mentions a hotel, accommodation, or place to stay with no flight, use only the hotel booking agent."
+        - "If the user mentions both a flight and hotel, or says 'full trip', 'travel package', or 'book my trip', use both agents."
+        - "Extract destination and travel dates from the user's request and pass them to the appropriate agents."
+        - "After completing all bookings, provide a clear confirmation summary with all booking details."
+      links:
+        - agent:
+            ref:
+              name: flightBookingAgent
+        - agent:
+            ref:
+              name: hotelBookingAgent
+agents:
+  flightBookingAgent:
+    label: Flight Booking Agent
+    metadata:
+      protocol: a2a
+      platform: Other
+  hotelBookingAgent:
+    label: Hotel Booking Agent
+    metadata:
+      protocol: a2a
+      platform: Other
+llmProviders:
+  claude:
+    label: Claude (Anthropic)
+    description: Claude LLM via Anthropic API (OpenAI-compatible endpoint)
+    metadata:
+      platform: OpenAI
+connections:
+  flightBookingAgentConnection:
+    kind: agent
+    ref:
+      name: flightBookingAgent
+    spec:
+      url: ${flightBookingAgent.url}
+  hotelBookingAgentConnection:
+    kind: agent
+    ref:
+      name: hotelBookingAgent
+    spec:
+      url: ${hotelBookingAgent.url}
+  claudeConnection:
+    kind: llm
+    ref:
+      name: claude
+    spec:
+      url: ${claude.url}
+      configuration:
+        apiKey: ${claude.apiKey}
+        timeout: 600000

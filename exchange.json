@@ -1,0 +1,49 @@
+{
+  "main": "agent-network.yaml",
+  "name": "travel-agent-broker-network",
+  "classifier": "agent-network",
+  "organizationId": "558f5f35-75da-47bd-a55e-d24c28b56326",
+  "descriptorVersion": "1.0.0",
+  "tags": [],
+  "metadata": {
+    "variables": {
+      "ingressgw": {
+        "url": {
+          "description": "Ingress gateway URL",
+          "default": "",
+          "secret": false
+        }
+      },
+      "claude": {
+        "url": {
+          "description": "Claude LLM URL (e.g. https://api.anthropic.com/v1)",
+          "default": "",
+          "secret": false
+        },
+        "apiKey": {
+          "description": "Claude API key",
+          "default": ""
+        }
+      },
+      "flightBookingAgent": {
+        "url": {
+          "description": "Flight Booking Agent A2A endpoint URL",
+          "default": "",
+          "secret": false
+        }
+      },
+      "hotelBookingAgent": {
+        "url": {
+          "description": "Hotel Booking Agent A2A endpoint URL",
+          "default": "",
+          "secret": false
+        }
+      }
+    }
+  },
+  "apiVersion": "v1.0",
+  "dependencies": [],
+  "groupId": "558f5f35-75da-47bd-a55e-d24c28b56326",
+  "assetId": "travel-agent-broker-network",
+  "version": "1.0.0"
+}

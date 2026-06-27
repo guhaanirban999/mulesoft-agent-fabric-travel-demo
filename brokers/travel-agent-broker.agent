@@ -1,0 +1,194 @@
+# @dialect: AGENTFABRIC=0.1
+
+system:
+  instructions: "You are a Travel Agent Broker. You help users book flights, hotels, or both based on their travel requests. You classify what the user needs and delegate to the appropriate booking agents."
+
+config:
+  agent_name: "travel-agent-broker"
+  default_llm: @llm.claude
+
+llm:
+  claude:
+    target: "llm://claudeLlmConnection"
+    kind: "OpenAI"
+    model: "claude-opus-4-5"
+
+
+# -- ACTION DEFINITIONS -------------------------------------------------------
+
+actions:
+  flight_booking_agent:
+    target: "a2a://flightBookingAgentConnection"
+    kind: "a2a:send_message"
+
+  hotel_booking_agent:
+    target: "a2a://hotelBookingAgentConnection"
+    kind: "a2a:send_message"
+
+
+# -- TRIGGER ------------------------------------------------------------------
+
+trigger travelTrigger:
+  kind: "a2a"
+  target: "brokers://travel-agent-broker/a2a"
+  on_message: ->
+    transition to @generator.classifyRequest
+
+
+# -- CLASSIFY REQUEST ---------------------------------------------------------
+
+generator classifyRequest:
+  description: "Classifies the travel booking request to determine what the user needs."
+  label: "Classify Request"
+  llm: @llm.claude
+  system:
+    instructions: |
+      Classify the travel booking request to determine what services the user needs.
+
+      Set booking_type to:
+      - "flight_only" when the user mentions a flight, flight booking, or travel by air only — with no hotel, stay, or accommodation mentioned.
+      - "hotel_only" when the user mentions a hotel, accommodation, or place to stay — with no flight or air travel mentioned.
+      - "both" when the user mentions both a flight and a hotel, or uses phrases like "full trip", "travel package", "book my trip", "flight and hotel".
+
+      Also extract:
+      - destination: the city, country, or location the user is travelling to. Default to "not specified" if missing.
+      - travel_dates: any check-in/check-out or departure/return dates mentioned. Default to "not specified" if missing.
+      - original_request: copy the user's message verbatim.
+  prompt: ->
+    | {!@request.payload.message.parts[0].text}
+  outputs:
+    properties:
+      booking_type:
+        type: "string"
+        description: "The type of booking needed"
+        enum:
+          - "flight_only"
+          - "hotel_only"
+          - "both"
+      destination:
+        type: "string"
+        description: "The travel destination"
+      travel_dates:
+        type: "string"
+        description: "The travel dates mentioned"
+      original_request:
+        type: "string"
+        description: "The original user request verbatim"
+  on_exit: ->
+    transition to @router.bookingRouter
+
+
+# -- BOOKING ROUTER -----------------------------------------------------------
+
+router bookingRouter:
+  description: "Routes to the appropriate booking path based on request classification."
+  routes:
+    - target: @subagent.bookFlight
+      when: @generator.classifyRequest.output.booking_type == "flight_only"
+      label: "Flight Only"
+    - target: @subagent.bookHotel
+      when: @generator.classifyRequest.output.booking_type == "hotel_only"
+      label: "Hotel Only"
+  otherwise:
+    target: @orchestrator.bookTravel
+
+
+# -- FLIGHT ONLY PATH ---------------------------------------------------------
+
+subagent bookFlight:
+  description: "Books a flight using the Flight Booking Agent."
+  label: "Book Flight"
+  llm: @llm.claude
+  system:
+    instructions: |
+      You are coordinating a flight booking.
+      Use the flight booking agent to complete the booking described in the user's request.
+      Pass all relevant details: destination, travel dates, and the full original request.
+      Once the flight is booked, set summary to the booking confirmation details returned by the agent.
+      If the agent cannot complete the booking, set summary to a clear explanation of what is missing.
+  reasoning:
+    instructions: ->
+      | Book a flight for this request: {!@generator.classifyRequest.output.original_request}. Destination: {!@generator.classifyRequest.output.destination}. Dates: {!@generator.classifyRequest.output.travel_dates}
+    actions:
+      book_flight: @actions.flight_booking_agent
+    max_number_of_loops: 3
+    outputs:
+      properties:
+        summary:
+          type: "string"
+          description: "Flight booking confirmation summary"
+  on_exit: ->
+    transition to @echo.flightResponse
+
+echo flightResponse:
+  kind: "a2a:status_update_event"
+  state: "TASK_STATE_COMPLETED"
+  message: a2a.message({messageId: uuid(), parts: [a2a.textPart("Flight booking completed for " + @generator.classifyRequest.output.destination + ". " + @subagent.bookFlight.output.summary)]})
+
+
+# -- HOTEL ONLY PATH ----------------------------------------------------------
+
+subagent bookHotel:
+  description: "Books a hotel using the Hotel Booking Agent."
+  label: "Book Hotel"
+  llm: @llm.claude
+  system:
+    instructions: |
+      You are coordinating a hotel booking.
+      Use the hotel booking agent to complete the booking described in the user's request.
+      Pass all relevant details: destination, travel dates, and the full original request.
+      Once the hotel is booked, set summary to the booking confirmation details returned by the agent.
+      If the agent cannot complete the booking, set summary to a clear explanation of what is missing.
+  reasoning:
+    instructions: ->
+      | Book a hotel for this request: {!@generator.classifyRequest.output.original_request}. Destination: {!@generator.classifyRequest.output.destination}. Dates: {!@generator.classifyRequest.output.travel_dates}
+    actions:
+      book_hotel: @actions.hotel_booking_agent
+    max_number_of_loops: 3
+    outputs:
+      properties:
+        summary:
+          type: "string"
+          description: "Hotel booking confirmation summary"
+  on_exit: ->
+    transition to @echo.hotelResponse
+
+echo hotelResponse:
+  kind: "a2a:status_update_event"
+  state: "TASK_STATE_COMPLETED"
+  message: a2a.message({messageId: uuid(), parts: [a2a.textPart("Hotel booking completed for " + @generator.classifyRequest.output.destination + ". " + @subagent.bookHotel.output.summary)]})
+
+
+# -- BOTH: FLIGHT + HOTEL PATH ------------------------------------------------
+
+orchestrator bookTravel:
+  description: "Books both a flight and a hotel using both booking agents."
+  label: "Book Travel (Flight + Hotel)"
+  llm: @llm.claude
+  system:
+    instructions: |
+      You are coordinating a complete travel booking that requires both a flight and a hotel.
+      Step 1: Book the flight using the flight booking agent with all travel details from the user's request.
+      Step 2: Book the hotel using the hotel booking agent with all travel details from the user's request.
+      Step 3: Compile a combined summary with confirmation details for both the flight and hotel bookings.
+      Complete both bookings before returning. If one fails, include the error in the summary and complete the other.
+  reasoning:
+    instructions: ->
+      | Book both a flight and hotel for this travel request: {!@generator.classifyRequest.output.original_request}. Destination: {!@generator.classifyRequest.output.destination}. Dates: {!@generator.classifyRequest.output.travel_dates}
+    actions:
+      book_flight: @actions.flight_booking_agent
+      book_hotel: @actions.hotel_booking_agent
+    max_number_of_loops: 5
+    task_timeout_secs: 120
+    outputs:
+      properties:
+        summary:
+          type: "string"
+          description: "Combined flight and hotel booking confirmation summary"
+  on_exit: ->
+    transition to @echo.travelResponse
+
+echo travelResponse:
+  kind: "a2a:status_update_event"
+  state: "TASK_STATE_COMPLETED"
+  message: a2a.message({messageId: uuid(), parts: [a2a.textPart("Travel booking completed for " + @generator.classifyRequest.output.destination + ". " + @orchestrator.bookTravel.output.summary)]})
