@@ -1,0 +1,39 @@
+display_information:
+  name: Travel Agent Broker
+  description: Search and book flights and hotels using the MuleSoft Travel Agent Broker AI
+  background_color: "#00a1e0"
+  long_description: |
+    Travel Agent Broker is an AI-powered travel assistant that helps you search
+    and book flights and hotels. Just use /travel followed by your request.
+    
+    Examples:
+    • /travel find me flights from San Francisco to New York on June 28th 2027
+    • /travel book a hotel in New York for 3 nights starting June 28th 2027
+    • /travel find me flights from London to Tokyo on July 10th 2027
+
+features:
+  bot_user:
+    display_name: Travel Agent
+    always_online: true
+  slash_commands:
+    - command: /travel
+      url: https://<YOUR_MULE_APP_URL>/slack/travel
+      description: Search and book flights or hotels using AI
+      usage_hint: "[your travel request]"
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.public
+      - commands
+      - channels:read
+      - im:write
+
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
+  interactivity:
+    is_enabled: false

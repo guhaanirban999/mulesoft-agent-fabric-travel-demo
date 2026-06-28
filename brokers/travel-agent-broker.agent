@@ -5,13 +5,13 @@ system:
 
 config:
   agent_name: "travel-agent-broker"
-  default_llm: @llm.claude
+  default_llm: @llm.openai
 
 llm:
-  claude:
-    target: "llm://claudeLlmConnection"
+  openai:
+    target: "llm://openaiLlmConnection"
     kind: "OpenAI"
-    model: "claude-opus-4-5"
+    model: "gpt-4.1"
 
 
 # -- ACTION DEFINITIONS -------------------------------------------------------
@@ -40,7 +40,7 @@ trigger travelTrigger:
 generator classifyRequest:
   description: "Classifies the travel booking request to determine what the user needs."
   label: "Classify Request"
-  llm: @llm.claude
+  llm: @llm.openai
   system:
     instructions: |
       Classify the travel booking request to determine what services the user needs.
@@ -98,7 +98,7 @@ router bookingRouter:
 subagent bookFlight:
   description: "Books a flight using the Flight Booking Agent."
   label: "Book Flight"
-  llm: @llm.claude
+  llm: @llm.openai
   system:
     instructions: |
       You are coordinating a flight booking.
@@ -131,7 +131,7 @@ echo flightResponse:
 subagent bookHotel:
   description: "Books a hotel using the Hotel Booking Agent."
   label: "Book Hotel"
-  llm: @llm.claude
+  llm: @llm.openai
   system:
     instructions: |
       You are coordinating a hotel booking.
@@ -164,7 +164,7 @@ echo hotelResponse:
 orchestrator bookTravel:
   description: "Books both a flight and a hotel using both booking agents."
   label: "Book Travel (Flight + Hotel)"
-  llm: @llm.claude
+  llm: @llm.openai
   system:
     instructions: |
       You are coordinating a complete travel booking that requires both a flight and a hotel.

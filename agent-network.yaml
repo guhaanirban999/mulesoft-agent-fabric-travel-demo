@@ -9,7 +9,7 @@ brokers:
       url: ${ingressgw.url}/travel-agent-broker
       capabilities:
         pushNotifications: false
-      version: 1.0.0
+      version: 1.0.2
       defaultInputModes:
         - text/plain
       defaultOutputModes:
@@ -32,9 +32,9 @@ brokers:
     spec:
       llm:
         ref:
-          name: claude
+          name: openai
         configuration:
-          model: claude-opus-4-5
+          model: gpt-5.4-mini
       instructions:
         - "You are a Travel Agent Broker. Help users book flights, hotels, or both based on their natural-language travel requests."
         - "If the user only mentions a flight or air travel with no hotel, use only the flight booking agent."
@@ -61,9 +61,9 @@ agents:
       protocol: a2a
       platform: Other
 llmProviders:
-  claude:
-    label: Claude (Anthropic)
-    description: Claude LLM via Anthropic API (OpenAI-compatible endpoint)
+  openai:
+    label: OpenAI
+    description: OpenAI GPT models via OpenAI API
     metadata:
       platform: OpenAI
 connections:
@@ -79,12 +79,12 @@ connections:
       name: hotelBookingAgent
     spec:
       url: ${hotelBookingAgent.url}
-  claudeConnection:
+  openaiConnection:
     kind: llm
     ref:
-      name: claude
+      name: openai
     spec:
-      url: ${claude.url}
+      url: ${openai.url}
       configuration:
-        apiKey: ${claude.apiKey}
+        apiKey: ${openai.apiKey}
         timeout: 600000

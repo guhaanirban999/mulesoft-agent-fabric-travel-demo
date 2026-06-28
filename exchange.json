@@ -14,15 +14,16 @@
           "secret": false
         }
       },
-      "claude": {
+      "openai": {
         "url": {
-          "description": "Claude LLM URL (e.g. https://api.anthropic.com/v1)",
+          "description": "OpenAI API base URL (e.g. https://api.openai.com/v1)",
           "default": "",
           "secret": false
         },
         "apiKey": {
-          "description": "Claude API key",
-          "default": ""
+          "description": "OpenAI API key (sk-proj-...)",
+          "default": "",
+          "secret": false
         }
       },
       "flightBookingAgent": {
