@@ -124,6 +124,31 @@ The Travel Agent Broker is a **MuleSoft Agent Fabric** (V1) deployment that orch
 
 ## Curl Commands — All Tested Requests & Responses
 
+### ⚠️ Warm Up Render.com Agents First
+
+Render.com free-tier apps sleep after 15 minutes of inactivity. Always warm them up before testing the broker to avoid 504 Gateway Timeout errors:
+
+```bash
+echo "Warming up Flight Booking Agent..." && \
+curl -s "https://flight-booking-agent-bq9s.onrender.com/.well-known/agent-card.json" | jq '.name' && \
+echo "Warming up Hotel Booking Agent..." && \
+curl -s "https://hotel-booking-agent-cr9b.onrender.com/.well-known/agent-card.json" | jq '.name' && \
+echo "Both agents are warm ✅"
+```
+
+**Expected output:**
+```
+Warming up Flight Booking Agent...
+"Flight Booking Agent"
+Warming up Hotel Booking Agent...
+"Hotel Booking Agent"
+Both agents are warm ✅
+```
+
+> The first warm-up call may take 30–60 seconds if the agents are sleeping. Subsequent calls will be fast.
+
+---
+
 ### Base URL
 ```
 https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-agent-broker
