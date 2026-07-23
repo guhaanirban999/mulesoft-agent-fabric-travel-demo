@@ -17,7 +17,7 @@ The Travel Agent Broker is a **MuleSoft Agent Fabric** (V1) deployment that orch
                          ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │          TRAVEL AGENT BROKER  (CloudHub 2.0, US East 2)          │
-│  travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io │
+│  omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io           │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐  │
 │  │              Mule Agent Fabric Runtime                     │  │
@@ -79,7 +79,7 @@ The Travel Agent Broker is a **MuleSoft Agent Fabric** (V1) deployment that orch
 
 | Property | Value |
 |---|---|
-| **Broker URL** | `https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io` |
+| **Broker URL** | `https://omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io` |
 | **A2A Endpoint** | `POST /travel-agent-broker` |
 | **Application ID** | `0e58a12a-5204-43e2-b992-047abe3be25a` |
 | **Environment** | Sandbox |
@@ -151,7 +151,7 @@ Both agents are warm ✅
 
 ### Base URL
 ```
-https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-agent-broker
+https://omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io/travel-agent-broker/
 ```
 
 ### A2A Request Format (JSON-RPC 2.0)
@@ -180,7 +180,7 @@ https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-ag
 **Request:**
 ```bash
 curl -s -X POST \
-  "https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-agent-broker" \
+  "https://omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io/travel-agent-broker/" \
   -H "Content-Type: application/json" \
   --max-time 180 \
   -d '{"jsonrpc":"2.0","id":"req-1","method":"message/send","params":{"message":{"kind":"message","role":"user","messageId":"msg-1","parts":[{"kind":"text","text":"find me flights from toronto to new delhi on june 28th 2027"}]}}}' | jq .
@@ -222,7 +222,7 @@ curl -s -X POST \
 **Request:**
 ```bash
 curl -s -X POST \
-  "https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-agent-broker" \
+  "https://omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io/travel-agent-broker/" \
   -H "Content-Type: application/json" \
   --max-time 180 \
   -d '{"jsonrpc":"2.0","id":"req-1","method":"message/send","params":{"message":{"kind":"message","role":"user","messageId":"msg-1","parts":[{"kind":"text","text":"find me flights from San Francisco to New York on June 28th 2027"}]}}}' | jq .
@@ -264,7 +264,7 @@ curl -s -X POST \
 **Request:**
 ```bash
 curl -s -X POST \
-  "https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-agent-broker" \
+  "https://omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io/travel-agent-broker/" \
   -H "Content-Type: application/json" \
   --max-time 180 \
   -d '{"jsonrpc":"2.0","id":"req-2","method":"message/send","params":{"message":{"kind":"message","role":"user","messageId":"msg-2","parts":[{"kind":"text","text":"I need a hotel in New York for 3 nights starting June 28th 2027"}]}}}' | jq .
@@ -308,7 +308,7 @@ curl -s -X POST \
 **Request:**
 ```bash
 curl -s -X POST \
-  "https://travel-agent-broker-network-8u1hpn.5sc6y6-2.usa-e2.cloudhub.io/travel-agent-broker" \
+  "https://omni-demo-gateway-s5er51.5sc6y6-1.usa-e2.cloudhub.io/travel-agent-broker/" \
   -H "Content-Type: application/json" \
   --max-time 180 \
   -d '{"jsonrpc":"2.0","id":"req-1","method":"message/send","params":{"message":{"kind":"message","role":"user","messageId":"msg-1","parts":[{"kind":"text","text":"Book The Gotham Grand hotel in New York, check-in June 28th 2027, check-out July 1st 2027"}]}}}' | jq .
