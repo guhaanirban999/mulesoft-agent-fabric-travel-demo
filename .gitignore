@@ -1,4 +1,5 @@
 target/
-*.jar
-*.log
-.DS_Store
+
+# Deployment secrets – never commit these
+deploy.env
+exchange.json.bak
