@@ -21,7 +21,7 @@ features:
     always_online: true
   slash_commands:
     - command: /travel
-      url: https://mule-slack-travel-8u1hpn.5sc6y6-4.usa-e2.cloudhub.io/slack/travel
+      url: https://mule-slack-s5er51.5sc6y6-3.usa-e2.cloudhub.io/slack/travel
       description: Search and book flights or hotels using AI
       usage_hint: "[your travel request]"
       should_escape: false
