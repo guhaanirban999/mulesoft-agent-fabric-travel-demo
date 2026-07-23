@@ -2,7 +2,7 @@
   "main": "agent-network.yaml",
   "name": "travel-agent-broker-network",
   "classifier": "agent-network",
-  "organizationId": "558f5f35-75da-47bd-a55e-d24c28b56326",
+  "organizationId": "bd24f01a-ad0a-454e-93cc-28a98abdcf2c",
   "descriptorVersion": "1.0.0",
   "tags": [],
   "metadata": {
@@ -44,7 +44,7 @@
   },
   "apiVersion": "v1.0",
   "dependencies": [],
-  "groupId": "558f5f35-75da-47bd-a55e-d24c28b56326",
+  "groupId": "bd24f01a-ad0a-454e-93cc-28a98abdcf2c",
   "assetId": "travel-agent-broker-network",
   "version": "1.0.0"
 }
